@@ -12,5 +12,10 @@ public class MyController {
 	public String sayHello() {
 		return "i am hello from api";
 	}
+	
+	@GetMapping("/hello")
+	public String sayHello1() {
+		return "i am changes from api";
+	}
 
 }
