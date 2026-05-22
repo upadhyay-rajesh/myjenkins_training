@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+    
+    parameters {
+        booleanParam(
+            name: 'JAVA_ENV',
+            defaultValue: true
+            )
+        booleanParam(
+            name: 'PYTHON_ENV',
+            defaultValue: true
+            )
+       
+    }
+
+    stages {
+       
+         stage('my parallel job') {
+             parallel{
+                 stage('java'){
+                     when{
+                         expression {
+                             return params.JAVA_ENV
+                         }
+                     }
+                     agent any
+                     environment {
+                        APP_NAME = "MyDemo"
+                    }
+                    tools {
+                         maven 'mymaven'
+                     }
+                     stages{
+                         stage('Hello') {
+                            steps {
+                                echo "Hello World  from ${APP_NAME}"
+                            }
+                        }
+        		stage('pull code from github') {
+            			steps {
+                			git branch: 'main', credentialsId: '8821a64c-f526-4f64-b111-87083ea8a8fe', url: 'https://github.com/upadhyay-rajesh/myjenkins_training'
+            			}
+        		}
+        		stage('build code') {
+            			steps {
+                			bat 'mvn clean install'
+            			}
+       			 }
+       			stage('test') {
+            			steps {
+                			bat 'mvn test'
+            			}
+        		}
+                     }
+                 }
+                 stage('python'){
+                     when{
+                         expression {
+                             return params.PYTHON_ENV
+                         }
+                     }
+		     agent any
+            		stages {
+               			stage('python first stage'){
+                   			steps{
+                       				echo 'python'
+                  			 }
+               			}
+                 	}
+             }
+             
+            
+           
+        }
+        
+    }
+}
+}

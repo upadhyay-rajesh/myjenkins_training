@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    
+    tools{
+        maven "mymaven"
+    }
+
+    stages {
+        stage('git pulling') {
+            steps {
+                git branch: 'jenkins_with_docker', credentialsId: '8821a64c-f526-4f64-b111-87083ea8a8fe', url: 'https://github.com/upadhyay-rajesh/myjenkins_training'
+            }
+        }
+        
+         stage('build project') {
+            steps {
+                bat 'mvn clean install'
+            }
+        }
+        
+        stage('build docker image') {
+            steps {
+                bat 'docker build -t raj050178/myjenkins .'
+            }
+        }
+        stage('push image to docker hub') {
+            steps {
+                bat 'docker login -u upadhyay.rajesh@rediffmail.com -p Rajesh123@ docker.io'
+                bat 'docker push raj050178/myjenkins'
+            }
+        }
+        stage('sonarqube quality'){
+            steps{
+                withSonarQubeEnv('sonarqube'){
+                    bat "mvn sonar:sonar -Dsonar.projectKey=mykey -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_AUTH_TOKEN"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    environment {
+        APP_NAME = "MyDemo"
+    }
+    tools {
+       maven 'mymaven'
+    }
+    stages {
+        stage('Hello') {
+            steps {
+                echo "Hello World  from ${APP_NAME}"
+            }
+        }
+        stage('pull code from github') {
+            steps {
+                git branch: 'main', credentialsId: '8821a64c-f526-4f64-b111-87083ea8a8fe', url: 'https://github.com/upadhyay-rajesh/myjenkins_training'
+            }
+        }
+        stage('build code') {
+            steps {
+                bat 'mvn clean install'
+            }
+        }
+       stage('test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+
+    }
+    post{
+       success { 
+           emailext(
+               subject: "hello: ${env.JOB_NAME}",
+               body: """  job done successfully """,
+               to: 'upadhyay0@gmail.com'
+               )
+       }
+       failure { echo "all stages Fail for app ${APP_NAME}"}
+
+    }
+
+}

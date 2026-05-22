@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice(
+            name: 'ENV',
+            choices: ['DEV','PROD','TEST']
+            )
+    }
+
+    stages {
+        stage('TRIGGERING JOB DEPENDS ON CHOICES') {
+            steps {
+               script{
+                   if(params.ENV == 'DEV'){
+                       build job: 'my_first_job'
+                   }
+                   else  if(params.ENV == 'TEST'){
+                       build job: 'my_first_pipeline'
+                   }
+                   else  if(params.ENV == 'PROD'){
+                       build job: 'jenkins_docker'
+                   }
+               }
+            }
+        }
+    }
+}
